@@ -3,17 +3,28 @@ import 'package:argaam_app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:local_notifications/local_notifications.dart';
+import 'package:argaam_app/views/article.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
     return new HomeStete();
   }
 }
 
 class HomeStete extends State<HomeScreen> {
   GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+  static const AndroidNotificationChannel channel =
+      const AndroidNotificationChannel(
+          id: 'default_notification',
+          name: 'Default',
+          description: 'Grant this app the ability to show notifications',
+          importance: AndroidNotificationChannelImportance.HIGH);
+
+  @override
+  Widget build(BuildContext context) {
+    return getbody();
+  }
 
   getbody() {
     return Scaffold(
@@ -54,7 +65,9 @@ class HomeStete extends State<HomeScreen> {
                       RaisedButton(
                           color: Colors.blueGrey,
                           onPressed: () async {
-                            await LocalNotifications.removeNotification(0);
+                            await LocalNotifications
+                                .removeAndroidNotificationChannel(
+                                    channel: channel);
                           },
                           child: Text("حذف  الاشعارات",
                               style: TextStyle(color: AppColors.orange)))
@@ -91,30 +104,39 @@ class HomeStete extends State<HomeScreen> {
                 items: posts.map((i) {
                   return new Builder(
                     builder: (BuildContext context) {
-                      return new Container(
-                          width: MediaQuery.of(context).size.width,
-                          margin: new EdgeInsets.symmetric(horizontal: 5.0),
-                          decoration: new BoxDecoration(
-                              image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(i["url"])),
-                              color: Colors.blueGrey.withOpacity(0.5),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: <Widget>[
-                              Container(
-                                height: MediaQuery.of(context).size.height * .1,
-                                decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.3)),
-                                child: Text(
-                                  i["header"],
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              )
-                            ],
-                          ));
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ArticleScreen(i)));
+                        },
+                        child: new Container(
+                            width: MediaQuery.of(context).size.width,
+                            margin: new EdgeInsets.symmetric(horizontal: 5.0),
+                            decoration: new BoxDecoration(
+                                image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: NetworkImage(i["url"])),
+                                color: Colors.blueGrey.withOpacity(0.5),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                Container(
+                                  height:
+                                      MediaQuery.of(context).size.height * .1,
+                                  decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.3)),
+                                  child: Text(
+                                    i["header"],
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                )
+                              ],
+                            )),
+                      );
                     },
                   );
                 }).toList(),
@@ -127,12 +149,6 @@ class HomeStete extends State<HomeScreen> {
         ],
       ),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-//    initNotification();
-    return getbody();
   }
 
   getDrawerBody() {
@@ -216,7 +232,10 @@ class HomeStete extends State<HomeScreen> {
   getlistOfNewa() {
     return posts.map((post) {
       return InkWell(
-          onTap: () {},
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => ArticleScreen(post)));
+          },
           child: Container(
             padding: EdgeInsets.all(5),
             height: 50,
@@ -239,13 +258,6 @@ class HomeStete extends State<HomeScreen> {
           ));
     }).toList();
   }
-
-  static const AndroidNotificationChannel channel =
-      const AndroidNotificationChannel(
-          id: 'default_notification',
-          name: 'Default',
-          description: 'Grant this app the ability to show notifications',
-          importance: AndroidNotificationChannelImportance.HIGH);
 
   Future showNotification() async {
     await LocalNotifications.createAndroidNotificationChannel(channel: channel);
