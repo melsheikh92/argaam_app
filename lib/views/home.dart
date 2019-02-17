@@ -2,6 +2,7 @@ import 'package:argaam_app/data.dart';
 import 'package:argaam_app/resources/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -43,7 +44,30 @@ class HomeStete extends State<HomeScreen> {
                     children: <Widget>[
                       RaisedButton(
                           color: Colors.blueGrey,
-                          onPressed: () {},
+                          onPressed: () async {
+                            FlutterLocalNotificationsPlugin
+                                flutterLocalNotificationsPlugin =
+                                new FlutterLocalNotificationsPlugin();
+                            var androidPlatformChannelSpecifics =
+                                new AndroidNotificationDetails(
+                                    '1',
+                                    'your channel name',
+                                    'your channel description',
+                                    importance: Importance.Max,
+                                    priority: Priority.High);
+                            var iOSPlatformChannelSpecifics =
+                                new IOSNotificationDetails();
+                            var platformChannelSpecifics =
+                                new NotificationDetails(
+                                    androidPlatformChannelSpecifics,
+                                    iOSPlatformChannelSpecifics);
+                            await flutterLocalNotificationsPlugin.show(
+                                0,
+                                'plain title',
+                                'plain body',
+                                platformChannelSpecifics,
+                                payload: 'item id 2');
+                          },
                           child: Text(
                             "أظهر اشعار جديد",
                             style: TextStyle(color: AppColors.orange),
